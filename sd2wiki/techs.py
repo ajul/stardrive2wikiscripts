@@ -1,80 +1,45 @@
 from sd2wiki.config import *
 from sd2wiki.core import *
-import loc
-import sd2wiki.buildings
-import csv, re
+from sd2wiki.loc import getLoc
+from sd2wiki.buildings import buildings
+import csv, re, os
 
 techs = {}
 
+class TechOption():
+    def __init__(self, type, uid, tech):
+        self.uid = uid
+        self.tech = tech
+        self.name = getLoc(type, uid, 'name')
+        self.reference = None # todo
+
 class Tech():
-    class TechOption():
-        def __init__(self, uid):
-            pass
-            
     def __init__(self, uid, cost,
             advanceOptions, buildingOptions, moduleOptions, skillOptions,
             skills, advance1Instruction, advance1Value, advance2Instruction, advance2Value):
+        uid = uid.strip()
         self.uid = uid
         self.cost = int(cost)
+        self.options = []
+        self.name = getLoc(uid) or uid.split('_')[0]
+        self.level = uid.split('_')[-1]
+        self.category = uid.split('_')[-2]
         
-        
-            
+        for buildingUID in re.split(',', buildingOptions):
+            buildingUID = buildingUID.strip()
+            if buildingUID == '': continue
+            techOption = TechOption('Building', buildingUID, self)
+            buildings[buildingUID].tech = self
 
 techFile = open(os.path.join(basedir, 'Techs', 'TechTree.txt'))
 
-for line in csv.reader(f, csv.excel_tab):
-    
+for building in buildings.values():
+    building.tech = None
 
-def getOptions(src, prefix):
-    for option in re.split(',\s*', src):
-        if option == '': return
-        optionName = getLoc(prefix, advanceOption, 'name')
-        optionDetails = getLoc(prefix, advanceOption, 'details')
-        yield '%s: %s' % (optionName, optionDetails)
-        
-
-
-result = ''
-
-
-    advanceData = [['', ''], ['', '']]
-    (uid, cost,
-     advanceOptions, buildingOptions, moduleOptions, skillOptions,
-     skills, advanceData[0][0], advanceData[0][1], advanceData[1][0], advanceData[1][1]) = line
+for line in csv.reader(techFile, csv.excel_tab):
+    uid = line[0].strip()
     if uid == '': continue
-    techCategory, techLevel = techID.split('_', 1)
-    options = []
-    # advances
-    for advanceOption in re.split(',\s*', advanceOptions):
-        if advanceOption == '': break
-        advanceName = getLoc('Advance', advanceOption, 'name')
-        advanceDetails = getLoc('Advance', advanceOption, 'details')
-        option = '%s: %s' % (advanceName, advanceDetails)
-        options.append(option)
-    # buildings
-    for buildingOption in re.split(',\s*', buildingOptions):
-        if buildingOption == '': break
-        option = '%s: building' % buildingOption
-        options.append(option)
-    # modules
-    for moduleOption in re.split(',\s*', moduleOptions):
-        if moduleOption == '': break
-        option = '%s: module' % moduleOption
-        options.append(option)
-    # skills
-    for skillOption in re.split(',\s*', skillOptions):
-        if skillOptions == '': break
-        option = '%s: skill' % skillOption
-        options.append(option)
-    result += '|-\n'
-    result += '| %s || ? || %s ' % (techLevel, cost)
-    for i in range(3):
-        if i < len(options):
-            result += '|| %s ' % options[i]
-        else:
-            result += '|| '
-    result += '\n'
+    techs[uid] = Tech(*line)
+    
+techFile.close()
 
-f.close()
-
-print(result)

@@ -1,6 +1,6 @@
 from sd2wiki.config import *
 
-import csv, re
+import csv, re, os
 
 encoding = 'utf_16_le'
 
@@ -17,4 +17,5 @@ locFile.close()
 
 def getLoc(*args):
     key = '_'.join(args)
-    return loc[key]
+    if key in loc: return loc[key]
+    else: return None

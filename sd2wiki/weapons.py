@@ -1,5 +1,6 @@
 import xml.etree.ElementTree as ElementTree
-from core import *
+from sd2wiki.config import *
+from sd2wiki.core import *
 import re, os
 
 weaponSets = {}

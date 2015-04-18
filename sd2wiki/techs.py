@@ -1,6 +1,29 @@
-from core import *
-from loc import *
+from sd2wiki.config import *
+from sd2wiki.core import *
+import loc
+import sd2wiki.buildings
 import csv, re
+
+techs = {}
+
+class Tech():
+    class TechOption():
+        def __init__(self, uid):
+            pass
+            
+    def __init__(self, uid, cost,
+            advanceOptions, buildingOptions, moduleOptions, skillOptions,
+            skills, advance1Instruction, advance1Value, advance2Instruction, advance2Value):
+        self.uid = uid
+        self.cost = int(cost)
+        
+        
+            
+
+techFile = open(os.path.join(basedir, 'Techs', 'TechTree.txt'))
+
+for line in csv.reader(f, csv.excel_tab):
+    
 
 def getOptions(src, prefix):
     for option in re.split(',\s*', src):
@@ -9,16 +32,16 @@ def getOptions(src, prefix):
         optionDetails = getLoc(prefix, advanceOption, 'details')
         yield '%s: %s' % (optionName, optionDetails)
         
-f = open(os.path.join(basedir, 'Techs', 'TechTree.txt'))
+
 
 result = ''
 
-for line in csv.reader(f, csv.excel_tab):
+
     advanceData = [['', ''], ['', '']]
-    (techID, cost,
+    (uid, cost,
      advanceOptions, buildingOptions, moduleOptions, skillOptions,
      skills, advanceData[0][0], advanceData[0][1], advanceData[1][0], advanceData[1][1]) = line
-    if techID == '': continue
+    if uid == '': continue
     techCategory, techLevel = techID.split('_', 1)
     options = []
     # advances
